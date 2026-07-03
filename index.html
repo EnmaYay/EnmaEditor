@@ -237,6 +237,13 @@
   }
   .kofi-btn:hover{ transform:translateY(1px); box-shadow:0 3px 0 #c65c85; }
 
+
+  .fallback-link{
+    display:inline-block; margin-top:10px; font-family:'Quicksand', sans-serif; font-weight:600; font-size:12.5px;
+    color:#8b8781; text-decoration:underline; text-underline-offset:3px;
+  }
+  .fallback-link:hover{ color:var(--pink-deep); }
+
   footer{
     padding:34px 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
     font-family:'Quicksand', sans-serif; font-size:13px; color:var(--dim);
@@ -420,8 +427,9 @@
         </select>
 
         <button type="submit" class="ship-btn">Send booking request →</button>
+        <a href="#" id="fallbackLink" class="fallback-link">Not on Gmail? Use your email app instead</a>
       </form>
-      <div class="form-note">Opens your email app with a message already filled in — just hit send. Prefer Discord? Mention it in the email and I'll continue there.</div>
+      <div class="form-note">Opens a Gmail compose window with a message already filled in — just hit send. Prefer Discord? Mention it in the email and I'll continue there.</div>
       <div id="confirm">Your email app should be open now. Send the message and I'll be in touch 💌</div>
     </div>
   </div>
@@ -435,15 +443,31 @@
 </footer>
 
 <script>
-  document.getElementById('bookForm').addEventListener('submit', function(e){
-    e.preventDefault();
+  function buildMessage(){
     var email = document.getElementById('email').value.trim();
     var need = document.getElementById('need').value;
     var subject = "Edit request: " + need;
     var body = "Hey,\n\nI'd like to book an edit. Here's what I need: " + need + ".\n\nMy email: " + email + "\n\nLink to footage / channel: \n\nThanks!";
+    return { subject: subject, body: body };
+  }
+
+  document.getElementById('bookForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var msg = buildMessage();
+    var gmailUrl = "https://mail.google.com/mail/?view=cm&fs=1&to=" +
+      encodeURIComponent("enmalattorre@gmail.com") +
+      "&su=" + encodeURIComponent(msg.subject) +
+      "&body=" + encodeURIComponent(msg.body);
+    window.open(gmailUrl, '_blank');
+    document.getElementById('confirm').style.display = 'block';
+  });
+
+  document.getElementById('fallbackLink').addEventListener('click', function(e){
+    e.preventDefault();
+    var msg = buildMessage();
     var mailto = "mailto:enmalattorre@gmail.com" +
-      "?subject=" + encodeURIComponent(subject) +
-      "&body=" + encodeURIComponent(body);
+      "?subject=" + encodeURIComponent(msg.subject) +
+      "&body=" + encodeURIComponent(msg.body);
     window.location.href = mailto;
     document.getElementById('confirm').style.display = 'block';
   });
